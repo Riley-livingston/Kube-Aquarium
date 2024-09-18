@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-simulator
+  labels:
+    app: event-simulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: event-simulator
+  template:
+    metadata:
+      labels:
+        app: event-simulator
+    spec:
+      serviceAccountName: event-simulator-account
+      containers:
+      - name: event-simulator
+        image: ghcr.io/riley-livingston/event-simulator:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi

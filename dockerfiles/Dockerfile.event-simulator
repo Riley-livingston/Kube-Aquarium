@@ -1,0 +1,10 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY dockerfiles/event-simulator-requirements.txt .
+RUN pip install --no-cache-dir -r event-simulator-requirements.txt
+
+COPY microservices/event-simulator.py .
+
+CMD ["python", "event-simulator.py"]
