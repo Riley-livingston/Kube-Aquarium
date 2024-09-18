@@ -16,5 +16,8 @@ EXPOSE 8080
 # Define environment variable
 ENV NAME Fish-Microservice
 
+# Add labels
+LABEL org.opencontainers.image.source https://github.com/riley-livingston/Kube-Aquarium
+
 # Run fish_microservice.py when the container launches
 CMD ["python", "fish_microservice.py"]
