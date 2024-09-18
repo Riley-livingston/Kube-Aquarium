@@ -5,6 +5,7 @@
 - [Project Goals](#project-goals)
 - [How It Works](#how-it-works)
 - [Components](#components)
+- [Container Registry](#Container-Registry)
 - [Getting Started](#getting-started)
 - [Contributing](#contributing)
 - [License](#license)
@@ -53,7 +54,7 @@ In this digital aquarium, each fish is a containerized microservice, and Kuberne
 
 ## Container Registry
 
-This project uses GitHub Container Registry (GHCR) to host our Docker images. GHCR provides free, unlimited bandwidth and storage for public images, making it an ideal choice for our open-source project. For more information on how we use GHCR, please see our [ghcr-info.md](ghcr-info.md) file.
+This project uses GitHub Container Registry (GHCR) to host our Docker images. GHCR provides free, unlimited bandwidth and storage for public images, making it an ideal choice for our open-source project. For more information on how we use GHCR, please see our [GHCR-INFO.md](GHCR-INFO.md) file.
 
 ## Contributing
 
