@@ -1,0 +1,31 @@
+piVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aquarium-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aquarium-manager
+  template:
+    metadata:
+      labels:
+        app: aquarium-manager
+    spec:
+      containers:
+      - name: aquarium-manager
+        image: ghcr.io/riley-livingston/aquarium-manager:latest
+        ports:
+        - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aquarium-manager-service
+spec:
+  selector:
+    app: aquarium-manager
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
