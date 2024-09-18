@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fish-deployment
+  labels:
+    app: fish
 spec:
   replicas: 3
   selector:
@@ -14,7 +16,7 @@ spec:
     spec:
       containers:
       - name: fish
-        image: your-registry/fish-microservice:latest
+        image: ghcr.io/riley-livingston/fish-microservice:latest
         ports:
         - containerPort: 8080
         resources:
