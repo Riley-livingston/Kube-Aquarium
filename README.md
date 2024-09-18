@@ -51,6 +51,10 @@ In this digital aquarium, each fish is a containerized microservice, and Kuberne
 5. Running the event simulator
 6. Accessing the user interface
 
+## Container Registry
+
+This project uses GitHub Container Registry (GHCR) to host our Docker images. GHCR provides free, unlimited bandwidth and storage for public images, making it an ideal choice for our open-source project. For more information on how we use GHCR, please see our [GHCR_USAGE.md](GHCR_USAGE.md) file.
+
 ## Contributing
 
 We welcome contributions from the community! Whether you're fixing bugs, adding new features, or improving documentation, your input is valuable. Please check our [CONTRIBUTING.md](CONTRIBUTING.md) file (to be created) for guidelines on how to contribute.
