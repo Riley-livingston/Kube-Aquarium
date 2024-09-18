@@ -1,0 +1,8 @@
+graph TD
+    A[User Interface] -->|Interacts with| B[API Gateway]
+    B -->|Manages| C[Kubernetes Cluster]
+    C -->|Orchestrates| D[Fish Microservices]
+    D -->|Simulated by| E[Docker Containers]
+    F[Python Event Simulator] -->|Generates events for| C
+    G[Monitoring & Logging] -->|Observes| C
+    H[Resource Management] -->|Controls| C
