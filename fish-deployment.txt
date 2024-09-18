@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fish-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fish
+  template:
+    metadata:
+      labels:
+        app: fish
+    spec:
+      containers:
+      - name: fish
+        image: your-registry/fish-microservice:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fish-service
+spec:
+  selector:
+    app: fish
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
