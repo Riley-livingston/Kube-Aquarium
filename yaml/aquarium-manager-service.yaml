@@ -1,7 +1,10 @@
-piVersion: apps/v1
+---
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: aquarium-manager
+  labels:
+    app: aquarium-manager
 spec:
   replicas: 1
   selector:
@@ -12,11 +15,12 @@ spec:
       labels:
         app: aquarium-manager
     spec:
+      serviceAccountName: aquarium-service-account  # If RBAC is required
       containers:
       - name: aquarium-manager
-        image: ghcr.io/riley-livingston/aquarium-manager:latest
+        image: ghcr.io/riley-livingston/aquarium-manager-service:latest
         ports:
-        - containerPort: 5000
+        - containerPort: 5000  # The port your container listens on
 ---
 apiVersion: v1
 kind: Service
@@ -24,8 +28,9 @@ metadata:
   name: aquarium-manager-service
 spec:
   selector:
-    app: aquarium-manager
+    app: aquarium-manager  # Select the pods based on the label
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 5000
+      port: 80            # ClusterIP service port for internal communication
+      targetPort: 5000     # Target port that the container is listening on
+  type: ClusterIP          # Internal service communication within the cluster

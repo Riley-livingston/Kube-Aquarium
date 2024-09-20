@@ -1,69 +1,83 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
+from flask_cors import CORS
 from kubernetes import client, config
-import requests
+import random  # For simulating data, remove in production
+import logging
 
 app = Flask(__name__)
+CORS(app)  # This enables CORS for all routes
 
-# Load Kubernetes configuration
-config.load_incluster_config()
-api = client.AppsV1Api()
-core_api = client.CoreV1Api()
+# Enable logging for detailed debug information
+logging.basicConfig(level=logging.DEBUG)
 
-def get_fish_pods():
-    pods = core_api.list_namespaced_pod(namespace="default", label_selector="app=fish")
-    return [pod.status.pod_ip for pod in pods.items if pod.status.pod_ip]
+# Explicitly load the in-cluster configuration to ensure the correct ServiceAccount is used
+try:
+    config.load_incluster_config()
+    logging.info("Successfully loaded in-cluster config")
+except Exception as e:
+    logging.error(f"Error loading in-cluster config: {str(e)}")
 
-@app.route('/aquarium_status')
-def get_aquarium_status():
-    fish_pods = get_fish_pods()
-    fish_statuses = []
-    for pod_ip in fish_pods:
-        try:
-            response = requests.get(f"http://{pod_ip}:8080/status")
-            fish_statuses.append(response.json())
-        except requests.RequestException:
-            pass
-    return jsonify(fish_statuses)
+# Initialize Kubernetes clients
+v1 = client.CoreV1Api()
+apps_v1 = client.AppsV1Api()
 
-@app.route('/scale', methods=['POST'])
-def scale_fish():
-    replicas = request.json.get('replicas')
-    if not replicas:
-        return jsonify({"error": "No replica count provided"}), 400
-    
+# Helper function to generate mock fish data
+def generate_fish_data(num_fish=5):
+    fish_data = []
+    for i in range(num_fish):
+        fish = {
+            "id": f"fish-{i+1}",
+            "species": random.choice(["Goldfish", "Betta", "Guppy"]),
+            "health": random.randint(50, 100),
+            "position": {"x": random.randint(0, 100), "y": random.randint(0, 100)}
+        }
+        fish_data.append(fish)
+    return fish_data
+
+@app.route('/')
+def home():
+    return jsonify({"message": "Welcome to the Aquarium Manager API"}), 200
+
+@app.route('/api/dashboard_data')
+def dashboard_data():
     try:
-        deployment = api.read_namespaced_deployment(name="fish-deployment", namespace="default")
-        deployment.spec.replicas = replicas
-        api.patch_namespaced_deployment(name="fish-deployment", namespace="default", body=deployment)
-        return jsonify({"message": f"Scaled to {replicas} replicas"})
-    except client.ApiException as e:
+        # Get pod information with correct permissions
+        pods = v1.list_namespaced_pod(namespace='default', label_selector='app=fish')
+        total_pods = len(pods.items) if pods.items else 0  # Safeguard if no pods are found
+        healthy_pods = sum(1 for pod in pods.items if pod.status.phase == 'Running')
+        
+        # Simulated CPU and memory usage (replace with real data if available)
+        cpu_usage = random.uniform(0, 100) if total_pods > 0 else 0  # Safeguard: Avoid undefined
+        memory_usage = random.uniform(0, 100) if total_pods > 0 else 0  # Safeguard: Avoid undefined
+        
+        # Return the data in the expected format
+        return jsonify({
+            "fishCount": total_pods,  # Total number of fish pods
+            "cpuUsage": cpu_usage,  # Simulated CPU usage
+            "memoryUsage": memory_usage,  # Simulated memory usage
+            "healthyPods": healthy_pods,  # Healthy pods
+            "totalPods": total_pods  # Total pods
+        })
+    except client.exceptions.ApiException as e:
+        logging.error(f"APIException: {e}")
+        return jsonify({"error": f"APIException: {e.reason}, Message: {e.body}"}), e.status
+    except Exception as e:
+        logging.error(f"General Exception: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/simulate_event', methods=['POST'])
-def simulate_event():
-    event_type = request.json.get('event')
-    if event_type == 'sickness':
-        fish_pods = get_fish_pods()
-        if fish_pods:
-            target_pod = random.choice(fish_pods)
-            try:
-                requests.get(f"http://{target_pod}:8080/simulate_sickness")
-                return jsonify({"message": "Simulated sickness event"})
-            except requests.RequestException:
-                return jsonify({"error": "Failed to simulate sickness"}), 500
-    elif event_type == 'predator':
-        try:
-            pods = core_api.list_namespaced_pod(namespace="default", label_selector="app=fish")
-            if pods.items:
-                victim = random.choice(pods.items)
-                core_api.delete_namespaced_pod(name=victim.metadata.name, namespace="default")
-                return jsonify({"message": f"Simulated predator attack, deleted pod {victim.metadata.name}"})
-            else:
-                return jsonify({"message": "No fish to attack"})
-        except client.ApiException as e:
-            return jsonify({"error": str(e)}), 500
-    else:
-        return jsonify({"error": "Unknown event type"}), 400
+@app.route('/api/aquarium_status')
+def aquarium_status():
+    try:
+        # Use generate_fish_data to simulate fish status
+        fish_data = generate_fish_data(num_fish=5)  # Simulate 5 fish
+        return jsonify({
+            "status": "healthy",
+            "fish": fish_data,  # Return the fish data
+            "waterQuality": "good"
+        })
+    except Exception as e:
+        logging.error(f"General Exception: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)

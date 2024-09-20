@@ -1,9 +1,11 @@
 import random
 import time
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import os
 
 app = Flask(__name__)
+CORS(app)  # This enables CORS for all routes
 
 class Fish:
     def __init__(self, species):

@@ -1,0 +1,27 @@
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+.aquarium {
+  width: 80%;
+  height: 400px;
+  margin: 20px auto;
+  border: 2px solid #4a90e2;
+  background-color: #e6f3ff;
+  position: relative;
+}
+
+.fish {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: absolute;
+  transition: all 0.5s ease;
+}
+
+.terminal {
+  width: 80%;
+  margin: 20px auto;
+  text-align: left;
+}
